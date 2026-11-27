@@ -20,3 +20,10 @@ def complete_task(tasks: list[Task], task_id: int) -> bool:
         return False
     task.done = True
     return True
+
+def delete_task(tasks: list[Task], task_id: int) -> bool:
+    task = find_task(tasks, task_id)
+    if task is None:
+        return False
+    tasks.remove(task)
+    return True
