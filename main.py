@@ -1,6 +1,5 @@
+from tasks_app import db
 from tasks_app.models import Task
-from tasks_app.services import add_task, complete_task, delete_task
-from tasks_app.storage import load_tasks, save_tasks
 
 
 def show_tasks(tasks: list[Task]) -> None:
@@ -21,7 +20,7 @@ def ask_id() -> int | None:
 
 
 def main() -> None:
-    tasks = load_tasks()
+    db.init_db()
 
     while True:
         print()
@@ -33,25 +32,24 @@ def main() -> None:
         choice = input("Выбери действие: ")
 
         if choice == "1":
-            show_tasks(tasks)
+            show_tasks(db.get_all_tasks())
         elif choice == "2":
             title = input("Название задачи: ")
-            add_task(tasks, title)
-            save_tasks(tasks)
+            db.create_task(title)
             print("Добавлено.")
         elif choice == "3":
             task_id = ask_id()
             if task_id is not None:
-                if complete_task(tasks, task_id):
-                    save_tasks(tasks)
-                    print("Отмечено.")
-                else:
+                task = db.get_task(task_id)
+                if task is None:
                     print("Такой задачи нет.")
+                else:
+                    db.update_task(task_id, task.title, True)
+                    print("Отмечено.")
         elif choice == "4":
             task_id = ask_id()
             if task_id is not None:
-                if delete_task(tasks, task_id):
-                    save_tasks(tasks)
+                if db.delete_task(task_id):
                     print("Удалено.")
                 else:
                     print("Такой задачи нет.")
